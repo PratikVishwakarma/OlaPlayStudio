@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bgone"
+    android:gravity="center"
+    android:transitionName="fullLayout"
+    tools:layout_editor_absoluteY="25dp">
+
+    <ImageView
+        android:id="@+id/player_imageView_playing_song_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:transitionName="songImage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/placeholder_song" />
+
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorItemDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/player_textView_playing_song"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
+            android:text="Playing Song Name"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_heading_1"
+            android:textStyle="bold"
+            android:transitionName="songName"
+            app:layout_constraintStart_toEndOf="@+id/player_imageView_thumbnail_song"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/player_textView_playing_song_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="Marshall Mathers"
+            android:textColor="@color/colorWhite"
+            android:transitionName="artistName"
+            app:layout_constraintStart_toEndOf="@+id/player_imageView_thumbnail_song"
+            app:layout_constraintTop_toBottomOf="@+id/player_textView_playing_song" />
+
+        <ImageView
+            android:id="@+id/player_imageView_thumbnail_song"
+            android:layout_width="@dimen/icon_dimen_large"
+            android:layout_height="@dimen/icon_dimen_large"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/placeholder_song" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/player_all_option_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorItemDark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/player_imageView_playing"
+            android:layout_width="@dimen/icon_dimen_medium"
+            android:layout_height="@dimen/icon_dimen_medium"
+            android:layout_marginBottom="8dp"
+
+            android:layout_marginTop="8dp"
+            android:transitionName="songPlayingButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/player_imageView_next"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/player_imageView_previous"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_play_current"
+            android:onClick="onClick"/>
+
+        <ImageView
+            android:id="@+id/player_imageView_previous"
+            android:layout_width="@dimen/icon_dimen_small"
+            android:layout_height="@dimen/icon_dimen_small"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/player_imageView_playing"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_previous_song"
+            android:onClick="onClick"/>
+
+
+        <ImageView
+            android:id="@+id/player_imageView_next"
+            android:layout_width="@dimen/icon_dimen_small"
+            android:layout_height="@dimen/icon_dimen_small"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/player_imageView_playing"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_next_song"
+            android:onClick="onClick"/>
+    </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>
