@@ -223,8 +223,7 @@ public class AllSongsFragment extends Fragment {
     }
 
     public List<SongDBModel> filterList(String type){
-        printLog("Type of filter ", type);
-        printLog("main list ",songListMain.size()+"");
+//        printLog("main list ",songListMain.size()+"");
         for(SongDBModel songDBModel :songListMain){
 //            printLog("data on list ", songDBModel.getSong());
         }

@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Created by pratik on 17/12/17.
+ * Created by pratik on 20/12/17.
  */
 
 public class History implements Parcelable{
@@ -45,24 +45,12 @@ public class History implements Parcelable{
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public long getSongId() {
         return songId;
     }
 
-    public void setSongId(long songId) {
-        this.songId = songId;
-    }
-
     public long getTimeStamp() {
         return timeStamp;
-    }
-
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     public long getId() {

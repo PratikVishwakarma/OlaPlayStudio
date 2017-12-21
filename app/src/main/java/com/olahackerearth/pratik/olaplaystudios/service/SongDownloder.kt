@@ -17,8 +17,9 @@ import java.net.URL
 import java.util.*
 
 /**
- * Created by pratik on 17/12/17.
+ * Created by pratik on 20/12/17.
  */
+
 class SongDownloader(val context: Context) : AsyncTask<SongDBModel, String, SongDBModel>() {
 
     override fun onPreExecute() {
@@ -41,20 +42,17 @@ class SongDownloader(val context: Context) : AsyncTask<SongDBModel, String, Song
                 song.downloadStatus = Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED
                 return song
             } else {
-                Log.e("songdownloader", "Song is null")
                 return null
             }
         } else {
-            Log.e("songdownloader", "Params empty")
+//            Log.e("songdownloader", "Params empty")
             return null
         }
     }
 
     override fun onProgressUpdate(vararg values: String?) {
         super.onProgressUpdate(*values)
-        if (values.isNotEmpty()) {
-//            Log.e("songdownloader", "Download progress: "+ values[0])
-        }
+        if (values.isNotEmpty()) { }
     }
 
     override fun onPostExecute(result: SongDBModel?) {
@@ -62,6 +60,10 @@ class SongDownloader(val context: Context) : AsyncTask<SongDBModel, String, Song
         DBHelper.getDBHelper(context).updateSong(result)
         val result = result
         if(result!=null) {
+            /**
+             * Adding into history table
+             */
+
             val history = History(
                     Constant.DATABASE_CONSTANT_HISTORY_DOWNLOAD,
                     result.id,
@@ -71,6 +73,9 @@ class SongDownloader(val context: Context) : AsyncTask<SongDBModel, String, Song
         }
     }
 
+    /**
+     * Copy the data into the sdCard
+     */
 
     fun copyWithProgress(`in`: InputStream, out: OutputStream, buffer: ByteArray): Long {
         var read = 0L

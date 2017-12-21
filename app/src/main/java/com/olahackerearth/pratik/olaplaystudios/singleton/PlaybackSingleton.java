@@ -25,7 +25,6 @@ public class PlaybackSingleton {
         this.mContext = mContext;
         this.mediaPlayer = new MediaPlayer();
         this.playbackController = new PlaybackController(mContext);
-
     }
 
     public MediaPlayer mediaPlayer;

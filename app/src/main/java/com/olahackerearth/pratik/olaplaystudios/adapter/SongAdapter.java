@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by pratik on 17/12/17.
+ * Created by pratik on 20/12/17.
  */
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> {
@@ -84,18 +86,25 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
             holder.downloadSongDBModel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    /**
+                     * *
+                     * Checking for permissions
+                     * */
                     int permissionCheck = ContextCompat.checkSelfPermission(mContext,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE);
                     if (permissionCheck == PackageManager.PERMISSION_GRANTED){
                         holder.downloadSongDBModel.setVisibility(View.GONE);
-                        Toast.makeText(mContext, "Downloading...", Toast.LENGTH_SHORT).show();
-                        final SongDownloader songDownloader = new SongDownloader(mContext);
-                        songDownloader.execute(song);
+                        if(isNetworkAvailable()){
+                            Toast.makeText(mContext, "Downloading...", Toast.LENGTH_SHORT).show();
+                            final SongDownloader songDownloader = new SongDownloader(mContext);
+                            songDownloader.execute(song);
+                        }else{
+                            Toast.makeText(mContext, "Network Error", Toast.LENGTH_SHORT).show();
+                        }
                     }
                     else {
                         Toast.makeText(mContext, "Permission Required", Toast.LENGTH_SHORT).show();
                         Intent playIntent = new Intent(Constant.ACTION_PERMISSION_REQUEST);
-                        playIntent.setData(Uri.parse(song.getUrl()).buildUpon().build());
                         playIntent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, song);
                         mContext.sendBroadcast(playIntent);
                     }
@@ -116,6 +125,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
                     song.setFavorite(Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT);
                     holder.favoriteImage.setImageResource(R.drawable.ic_favorite);
 
+                    /**
+                     * Adding into history table
+                     */
                     DBHelper.getDBHelper(mContext).updateSong(song);
                     History history = new History(
                             Constant.DATABASE_CONSTANT_HISTORY_TYPE_REMOVE_FROM_FAVORITE,
@@ -126,7 +138,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
                 } else{
                     song.setFavorite(Constant.CONSTANT_SONG_FAVORITE_STATUS_YES);
                     holder.favoriteImage.setImageResource(R.drawable.ic_favorite_hover);
-
+                    /**
+                     * Adding into history table
+                     */
                     DBHelper.getDBHelper(mContext).updateSong(song);
                     History history = new History(
                             Constant.DATABASE_CONSTANT_HISTORY_TYPE_ADD_TO_FAVORITE,
@@ -138,7 +152,20 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
             }
         });
     }
-
+    /**
+     * *
+     * Checking internet connection is available or not
+     * */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+    /**
+     * *
+     * Play song on item elements click
+     * */
     private void playSong(SongDBModel songDBModel) {
         Player.play(songList, songDBModel);
         Intent playIntent = new Intent(mContext, PlayBackService.class);

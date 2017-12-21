@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Created by pratik on 17/12/17.
+ * Created by pratik on 20/12/17.
  */
 
 public class SongDBModel implements Parcelable{
@@ -72,16 +72,8 @@ public class SongDBModel implements Parcelable{
         return artists;
     }
 
-    public void setArtists(String artists) {
-        this.artists = artists;
-    }
-
     public String getCoverImage() {
         return coverImage;
-    }
-
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
     }
 
     public String getDownloadStatus() {
@@ -100,10 +92,6 @@ public class SongDBModel implements Parcelable{
         return coverImageFullUlr;
     }
 
-    public void setCoverImageFullUlr(String coverImageFullUlr) {
-        this.coverImageFullUlr = coverImageFullUlr;
-    }
-
     public String getFavorite() {
         return favorite;
     }
@@ -114,10 +102,6 @@ public class SongDBModel implements Parcelable{
 
     public String getSongFullUrl() {
         return songFullUrl;
-    }
-
-    public void setSongFullUrl(String songFullUrl) {
-        this.songFullUrl = songFullUrl;
     }
 
     @Override

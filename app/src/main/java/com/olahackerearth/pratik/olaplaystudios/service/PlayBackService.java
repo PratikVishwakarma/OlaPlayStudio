@@ -1,12 +1,16 @@
 package com.olahackerearth.pratik.olaplaystudios.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
 import com.olahackerearth.pratik.olaplaystudios.model.History;
@@ -64,12 +68,6 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         getPlayback().playbackController.start();
-        History history = new History(
-                Constant.DATABASE_CONSTANT_HISTORY_PLAY,
-                song.getId(),
-                new Date().getTime()
-        );
-        DBHelper.getDBHelper(getApplicationContext()).addHistory(history);
     }
 
     @Override
@@ -85,14 +83,26 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
                 File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "OlaPlayStudios");
                 File file = new File(dir.getPath() + File.separator + song.getSong()+".mp3");
                 Uri uri = Uri.fromFile(file);
-                Log.e("playback service ", " "+uri);
+//                Log.e("playback service ", " "+uri);
                 player.setDataSource(getApplicationContext(), uri);
             } else{
+                if(!isNetworkAvailable()){
+                    Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                }else{
+
+                }
                 player.setDataSource(getApplicationContext(), Uri.parse(song.getSongFullUrl()).buildUpon().build());
             }
             player.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

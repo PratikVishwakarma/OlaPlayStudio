@@ -82,11 +82,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     private ViewPager mViewPager;
     private TabLayout tabLayout;
-        private int[] tabIcons = {
-            R.drawable.ic_home_hover,
-            R.drawable.ic_download_hover,
-            R.drawable.ic_favorite_hover
-    };
 
     private TextView playingSong, playingArtist;
     private ImageView playingSongButton, playingSongCoverImage;
@@ -97,10 +92,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     public List<SongDBModel> songListMain = songDBList;
 
     private List<String> imageFullUrlList= new ArrayList<>();
-    private RecyclerView recyclerView;
-    private SongAdapter mAdapter;
-
-    LinearLayoutManager mLayoutManager;
 
     DBHelper dbHelper;
 
@@ -124,47 +115,15 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
+    /**
+     * Handle all click on Home activity or the small player on the bottom
+     */
 
     @Override
     public void onClick(View view) {
         PlaybackController controller = PlaybackSingleton.getPlaybackInstance(this).playbackController;
-
-
-        ViewCompat.setTransitionName(playingSong, "songName");
-        ViewCompat.setTransitionName(playingSongCoverImage, "songImage");
-        ViewCompat.setTransitionName(playingArtist, "artistName");
-        ViewCompat.setTransitionName(playingSongButton, "songPlayingButton");
-
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            details.setSharedElementEnterTransition(new DetailsTransition());
-            details.setEnterTransition(new Fade());
-            setExitTransition(new Fade());
-            details.setSharedElementReturnTransition(new DetailsTransition());
-        }
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addSharedElement(holder.image, "sharedImage")
-                .addSharedElement(holder.image, "sharedImage")
-                .addSharedElement(holder.image, "sharedImage")
-                .addSharedElement(holder.image, "sharedImage")
-                .replace(R.id.container, details)
-                .addToBackStack(null)
-                .commit();
-
-        */
-
         switch (view.getId()){
-
             case R.id.home_constraintLayout_small_player:
-//                controller.seekTo(controller.getCurrentPosition()+10000);
                 callPlayer();
                 break;
             case R.id.home_imageView_playing_song_image:
@@ -187,6 +146,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    /**
+     * *
+     * calling player activity
+     * */
     public void callPlayer(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             startActivity(new Intent(getApplicationContext(), PlayerActivity.class),
@@ -203,10 +167,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-
-        AllSongsFragment all;
-        AllSongsFragment downloaded;
-        AllSongsFragment liked;
+        AllSongsFragment all, downloaded, liked;
         HistoryFragment history;
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -221,7 +182,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         private Fragment getFragmentAt(int position) {
             Fragment fragment = null;
             switch(position) {
-
                 case 0:
                     fragment = all=all==null?AllSongsFragment.newInstance(Constant.CONSTANT_SONG_ALL_SONG, songListMain):all;
                     break;
@@ -234,14 +194,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 case 3:
                     fragment = history=history==null?HistoryFragment.newInstance():history;
                     break;
-
             }
             return fragment;
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
 
         @Override
@@ -288,28 +247,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * @param song
-     *  Search for the songs
-     */
-    private void searchForSong(String song){
-        printLog("search ", song);
-        songDBList.clear();
-        for(int i = 0; i< songListMain.size(); i++){
-            printLog("search in if ", songListMain.get(i).getSong());
-            if(songListMain.get(i).getSong().toLowerCase().startsWith(song)){
-                printLog("search in if ", song);
-                songDBList.add(songListMain.get(i));
-            }
-        }
-        mAdapter = new SongAdapter(songDBList, getApplicationContext());
-        mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    /**
      * unregister the Receiver
      */
     @Override
@@ -347,7 +284,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     public void parseJsonFromString(String inputStream) throws JSONException {
         printLog("JSON ", "Parsing start ");
         JSONArray mainJsonArray = new JSONArray(inputStream);
-        printLog("JSONData", mainJsonArray.toString().replace("\\",""));
+//        printLog("JSONData", mainJsonArray.toString().replace("\\",""));
         parseSongDetailFromJson(mainJsonArray);
     }
 
@@ -478,10 +415,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
                 if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                    printToast("Check permission granted ");
+                    printToast("Permission granted ");
                 } else {
                     ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_REQUEST);
                 }
+            } else {
+                printToast("on receive with null intent ");
             }
         }
     }
@@ -499,6 +438,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
+    /**
+     * Add the fetched songs into the database
+     */
     public void addSongs(List<SongDBModel> songList){
         for(SongDBModel song : songList){
             song.id = dbHelper.addSong(song);
@@ -506,6 +449,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         dataFetchedAndInserted();
     }
 
+    /**
+     * Check and refresh the fragment after fetching from internet is done
+     */
     public void dataFetchedAndInserted() {
         if(mSectionsPagerAdapter!=null) {
             if(mSectionsPagerAdapter.all!=null)
@@ -517,7 +463,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
         setupTabIcons();
     }
-
+    /**
+     * Fetching full image url from short Url
+     */
     public class FetchImageFullUrl extends AsyncTask<List<Song>, Void, List<String>> {
         @Override
         protected List<String> doInBackground(List<Song>[] lists) {
@@ -558,6 +506,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Fetching full song url from short Url to download it
+     */
     public class FetchSongFullUrl extends AsyncTask<List<Song>, Void, List<String>> {
         @Override
         protected List<String> doInBackground(List<Song>[] lists) {
@@ -592,6 +543,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * add the full song and image url into song objects
+     */
     public void addImageFullUrl(List<String> imageUrlList, List<String> songUrlList){
         ArrayList<SongDBModel> songListNotInDB= new ArrayList<SongDBModel>();
         for(int i = 0; i < imageUrlList.size(); i++){
@@ -614,13 +568,15 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
 //        mAdapter.notifyDataSetChanged();
     }
-
+    /**
+     * Fetching songs form database and load it into List
+     */
     public void fetchSongsFromDB(){
         String selectQuery = "SELECT  * FROM " + DBContract.Song.TABLE_NAME;
         SQLiteDatabase dbw = dbHelper.getWritableDatabase();
         Cursor cursor = dbw.rawQuery(selectQuery, null);
         // looping through all rows and adding to list
-        printLog("DB len ", cursor.getCount()+"");
+//        printLog("DB len ", cursor.getCount()+"");
         if (cursor.moveToFirst()) {
             do {
                 SongDBModel songDBModel = new SongDBModel(
@@ -642,15 +598,17 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         dataFetchedAndInserted();
     }
 
+    /**
+     * For Print logE
+     */
     public void printLog(String label, String message ){
         Log.e(label, message);
     }
-    
+
+    /**
+     * For Print/Show Toast
+     */
     public void printToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    public void printLogE(String label, String message){
-        Log.e(label, message);
     }
 }

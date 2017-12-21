@@ -23,13 +23,18 @@ import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
 import com.olahackerearth.pratik.olaplaystudios.model.History;
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class HistoryFragment extends Fragment {
 
+    /**
+     * This fragment is to show the activities / history of the user
+     */
 
-    private List<History> historyList;
+
+    private List<History> historyList = new ArrayList<>();
     private RecyclerView recyclerView;
     private HistoryAdapter mAdapter;
 
@@ -55,6 +60,7 @@ public class HistoryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+        dbHelper = DBHelper.getDBHelper(getContext());
         fetchHistoryFromDB();
     }
 
@@ -68,7 +74,7 @@ public class HistoryFragment extends Fragment {
     }
 
     public void initializeScreen(View rootView){
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.all_songs_recyclerView);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.history_recyclerView);
         setView();
     }
 
@@ -80,6 +86,10 @@ public class HistoryFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }
+    /**
+     * *
+     * fetch History from Database
+     * */
 
     public void fetchHistoryFromDB(){
         String selectQuery = "SELECT  * FROM " + DBContract.History.TABLE_NAME;

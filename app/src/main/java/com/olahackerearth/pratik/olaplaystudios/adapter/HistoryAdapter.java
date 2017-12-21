@@ -18,6 +18,7 @@ import com.olahackerearth.pratik.olaplaystudios.R;
 import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
 import com.olahackerearth.pratik.olaplaystudios.model.History;
 import com.olahackerearth.pratik.olaplaystudios.model.History;
+import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 import com.olahackerearth.pratik.olaplaystudios.service.PlayBackService;
 import com.olahackerearth.pratik.olaplaystudios.service.SongDownloader;
 import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
@@ -28,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by pratik on 17/12/17.
+ * Created by pratik on 20/12/17.
  */
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHolder> {
@@ -51,20 +52,27 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.MyViewHo
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final History history = historyList.get(position);
-        holder.containt.setText(history.getType());
-        holder.time.setText(history.getTimeStamp()+"");
+        holder.time.setVisibility(View.GONE);
+
+
+        SongDBModel songDBModel = DBHelper.getDBHelper(mContext).fetchSongNameById((int) history.getId());
+//        holder.time.setText(history.getTimeStamp()+"");
         switch (history.getType()){
             case Constant.DATABASE_CONSTANT_HISTORY_DOWNLOAD:
                 holder.typeImage.setImageResource(R.drawable.ic_download);
+                holder.containt.setText("Download Song "+ songDBModel.getSong());
                 break;
             case Constant.DATABASE_CONSTANT_HISTORY_PLAY:
                 holder.typeImage.setImageResource(R.drawable.ic_play_song);
+                holder.containt.setText("Play "+ songDBModel.getSong());
                 break;
             case Constant.DATABASE_CONSTANT_HISTORY_TYPE_ADD_TO_FAVORITE:
                 holder.typeImage.setImageResource(R.drawable.ic_favorite_hover);
+                holder.containt.setText("Add song "+ songDBModel.getSong()+" to favorite list");
                 break;
             case Constant.DATABASE_CONSTANT_HISTORY_TYPE_REMOVE_FROM_FAVORITE:
                 holder.typeImage.setImageResource(R.drawable.ic_favorite);
+                holder.containt.setText("Remove song "+ songDBModel.getSong()+" from favorite list");
                 break;
             default:
                 holder.typeImage.setVisibility(View.GONE);

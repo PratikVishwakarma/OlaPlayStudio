@@ -5,123 +5,58 @@
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bgone"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:background="@drawable/bgone"
-    tools:context="com.olahackerearth.pratik.olaplaystudios.MainActivity">
+    tools:context="com.olahackerearth.pratik.olaplaystudios.MainActivity"
+    tools:layout_editor_absoluteY="25dp">
 
-    <EditText
-        android:id="@+id/main_editText_search"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:ems="10"
-        android:hint="Search (Song)"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/main_recyclerView"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.18" />
+        app:layout_constraintTop_toTopOf="@+id/guideline3"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/ola_logo" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/main_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginBottom="8dp"
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="41dp"
+        android:layout_marginBottom="26dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
-        app:layout_constraintEnd_toEndOf="@id/main_editText_search"
+        android:fontFamily="@font/droidserif_bold"
+        android:text="OLA Play"
+        android:textColor="@color/colorWhite"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/home_constraintLayout_small_player"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#BB000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <ImageView
-            android:id="@+id/home_imageView_playing_song_image"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_play" />
-
-        <TextView
-            android:id="@+id/main_textView_playing_song"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Playing Song Name"
-            android:textColor="@color/colorWhite"
-            android:textSize="@dimen/text_heading_3"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/home_imageView_playing_song_image"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/main_textView_playing_song_artist"
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:text="Artist"
-            android:textColor="#e4d9a9a9"
-            app:layout_constraintStart_toEndOf="@+id/home_imageView_playing_song_image"
-            app:layout_constraintTop_toBottomOf="@+id/main_textView_playing_song" />
-
-        <ImageView
-            android:id="@+id/main_imageView_playing"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_play_current" />
-    </android.support.constraint.ConstraintLayout>
-
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginBottom="80dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:id="@+id/linear_scroll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="5dp" />
-    </HorizontalScrollView>
+        tools:layout_editor_absoluteY="305dp" />
 
     <android.support.constraint.Guideline
-        android:id="@+id/guideline"
+        android:id="@+id/guideline3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="63dp" />
+        app:layout_constraintGuide_begin="129dp" />
 
-
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="372dp" />
 </android.support.constraint.ConstraintLayout>

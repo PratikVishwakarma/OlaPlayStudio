@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorItem"
-    android:layout_marginBottom="2dp"
+    android:layout_marginBottom="3dp"
     tools:layout_editor_absoluteY="25dp">
 
     <TextView

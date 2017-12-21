@@ -2,6 +2,7 @@ package com.olahackerearth.pratik.olaplaystudios.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -10,7 +11,7 @@ import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 import com.olahackerearth.pratik.olaplaystudios.singleton.PlaybackSingleton;
 
 /**
- * Created by pratik on 9/10/17.
+ * Created by pratik on 20/12/17.
  */
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -54,23 +55,6 @@ public class DBHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(SQL_CREATE_HISTORY_TABLE );
     }
 
-    public void addSong(String song, String songUrl, String artists, String download_status,
-                       String fullImageUrl, String shortImageUrl) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValue = new ContentValues();
-        contentValue.put(DBContract.Song.COLUMN_SONG, song);
-        contentValue.put(DBContract.Song.COLUMN_SONG_URL, songUrl);
-        contentValue.put(DBContract.Song.COLUMN_ARTISTS, artists);
-        contentValue.put(DBContract.Song.COLUMN_DOWNLOAD_STATUS, download_status);
-        contentValue.put(DBContract.Song.COLUMN_COVER_IMAGE_FULL_LENGTH, fullImageUrl);
-        contentValue.put(DBContract.Song.COLUMN_COVER_IMAGE_SHORT_LENGTH, shortImageUrl);
-        contentValue.put(DBContract.Song.COLUMN_SONG_FULL_URL, shortImageUrl);
-        contentValue.put(DBContract.Song.COLUMN_FAVORITE_STATUS, shortImageUrl);
-        db.insert(DBContract.Song.TABLE_NAME, null, contentValue);
-        db.close(); // Closing database connection
-    }
-
-//    public void update
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+ DBContract.Song.TABLE_NAME);
@@ -91,6 +75,11 @@ public class DBHelper extends SQLiteOpenHelper {
         return contentValue;
     }
 
+    /**
+     * *
+     * Updating song on DataBase
+     * */
+
     public long updateSong(SongDBModel song) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValue = getContentValues(song);
@@ -99,6 +88,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    /**
+     * *
+     * Adding the Song into DataBase
+     * */
     public long addSong(SongDBModel song) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValue = getContentValues(song);
@@ -106,7 +99,10 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close(); // Closing database connection
         return id;
     }
-
+    /**
+     * *
+     * Adding the history into DataBase
+     * */
     public long addHistory(History history) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValue = getContentValuesHistory(history);
@@ -122,4 +118,29 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValue.put(DBContract.History.COLUMN_TIME_STAMP, history.getTimeStamp());
         return contentValue;
     }
+
+
+    public SongDBModel fetchSongNameById(int id){
+        SQLiteDatabase dbw = this.getWritableDatabase();
+        SongDBModel songDBModel = null;
+        Cursor cursor =dbw.query(DBContract.Song.TABLE_NAME,new String[]{"*"},
+                "_id="+id, null, null,null, null);
+
+        if (cursor.moveToFirst()) {
+                songDBModel = new SongDBModel(
+                        cursor.getString(DBContract.Song.COLUMN_INT_SONG),
+                        cursor.getString(DBContract.Song.COLUMN_INT_SONG_URL),
+                        cursor.getString(DBContract.Song.COLUMN_INT_ARTISTS),
+                        cursor.getString(DBContract.Song.COLUMN_INT_COVER_IMAGE_SHORT_LENGTH),
+                        cursor.getString(DBContract.Song.COLUMN_INT_DOWNLOAD_STATUS),
+                        cursor.getString(DBContract.Song.COLUMN_INT_COVER_IMAGE_FULL_LENGTH),
+                        cursor.getString(DBContract.Song.COLUMN_INT_FAVORITE_STATUS),
+                        cursor.getString(DBContract.Song.COLUMN_INT_SONG_FULL_URL)
+                );
+                songDBModel.id = cursor.getLong(DBContract.Song.COLUMN_INT_ID);
+            }
+            cursor.close();
+        return songDBModel;
+    }
+
 }
