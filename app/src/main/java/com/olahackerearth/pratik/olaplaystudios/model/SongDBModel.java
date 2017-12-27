@@ -9,9 +9,15 @@ import android.os.Parcelable;
 
 public class SongDBModel implements Parcelable{
 
+    public final static String COLUMN_SONG= "song";
+    public final static String COLUMN_URL = "url";
+    public final static String COLUMN_ARTISTS = "artists";
+    public final static String COLUMN_COVER_IMAGE= "cover_image";
+
     private String song, url, artists, coverImage, downloadStatus, coverImageFullUlr, favorite, songFullUrl;
     private int size;
     public long id = 0;
+    public boolean exists = false;
 
     public SongDBModel() {
     }
@@ -27,6 +33,13 @@ public class SongDBModel implements Parcelable{
         this.favorite= favorite;
         this.songFullUrl= songFullUrl;
         this.size = size;
+    }
+
+    public SongDBModel(String song, String url, String artists, String coverImage) {
+        this.song = song;
+        this.url = url;
+        this.artists = artists;
+        this.coverImage = coverImage;
     }
 
     protected SongDBModel(Parcel in) {
@@ -108,6 +121,18 @@ public class SongDBModel implements Parcelable{
 
     public int getSize() {
         return size;
+    }
+
+    public void setCoverImageFullUlr(String coverImageFullUlr) {
+        this.coverImageFullUlr = coverImageFullUlr;
+    }
+
+    public void setSongFullUrl(String songFullUrl) {
+        this.songFullUrl = songFullUrl;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     @Override

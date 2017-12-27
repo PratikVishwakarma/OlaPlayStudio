@@ -27,17 +27,6 @@ public class Constant {
     /// */
 
     public static final String INTENT_PASSING_SINGLE_SONG  = "singleSong";
-    public static final String INTENT_PASSING_SINGLE_SONG_POSITION  = "singleSongPosition";
-    public static final String INTENT_PASSING_FULL_SONG_LIST  = "songList";
-    public static final String INTENT_PASSING_SINGLE_SONG_URL  = "songUrl";
-    public static final String INTENT_PASSING_SINGLE_SONG_NAME_URL  = "songNameUrl";
-    public static final String INTENT_PASSING_SINGLE_SONG_STATUS = "currentSongStatus";
-    public static final String INTENT_PASSING_PERMISSION_ASKING = "permissionAsking";
-
-    public static final String CONSTANT_SINGLE_SONG_STATUS_PLAY = "play";
-    public static final String CONSTANT_SINGLE_SONG_STATUS_PAUSE = "pause";
-    public static final String CONSTANT_SINGLE_SONG_STATUS_RESUME = "resume";
-    public static final String CONSTANT_SINGLE_REQUEST_FOR_PERMISSION = "permissionRequest";
 
     public static final String CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED = "downloaded";
     public static final String CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED = "notDownloaded";

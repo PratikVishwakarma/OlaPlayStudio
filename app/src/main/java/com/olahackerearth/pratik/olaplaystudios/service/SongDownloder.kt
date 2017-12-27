@@ -6,7 +6,6 @@ import android.os.Environment
 import android.util.Log
 import com.olahackerearth.pratik.olaplaystudios.database.DBHelper
 import com.olahackerearth.pratik.olaplaystudios.model.History
-import com.olahackerearth.pratik.olaplaystudios.model.Song
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel
 import com.olahackerearth.pratik.olaplaystudios.utility.Constant
 import java.io.File

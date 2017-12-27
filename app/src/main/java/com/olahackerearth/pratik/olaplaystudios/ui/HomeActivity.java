@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -36,7 +37,6 @@ import android.widget.Toast;
 import com.olahackerearth.pratik.olaplaystudios.R;
 import com.olahackerearth.pratik.olaplaystudios.database.DBContract;
 import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
-import com.olahackerearth.pratik.olaplaystudios.model.Song;
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
 import com.olahackerearth.pratik.olaplaystudios.ui.player.PlayerActivity;
@@ -71,12 +71,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView playingSongButton, playingSongCoverImage;
     private ConstraintLayout playingContainer;
 
+    private List<SongDBModel> songList = new ArrayList<>();
     private List<SongDBModel> songDBList = new ArrayList<>();
-    private List<Song> songList = new ArrayList<>();
     public List<SongDBModel> songListMain = songDBList;
-
-    private List<String> imageFullUrlList = new ArrayList<>();
-    private List<String> songFullUrlList = new ArrayList<>();
 
     DBHelper dbHelper;
 
@@ -89,7 +86,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         dbHelper = DBHelper.getDBHelper(getApplicationContext());
-         initializeScreen();
+        initializeScreen();
         fetchSongsFromDB();
         callLoadDataTask();
         myReceiver = new MyReceiver();
@@ -212,10 +209,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
      */
     public void initializeScreen() {
 
-            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-            // Set up the ViewPager with the sections adapter.
-            mViewPager = (ViewPager) findViewById(R.id.home_container);
-            mViewPager.setAdapter(mSectionsPagerAdapter);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.home_container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
 
         playingContainer =  findViewById(R.id.home_constraintLayout_small_player);
         playingSongCoverImage = findViewById(R.id.home_imageView_playing_song_image);
@@ -283,28 +280,29 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     public void parseSongDetailFromJson(JSONArray mainJsonArray) throws JSONException {
         for (int i = 0; i < mainJsonArray.length(); i++) {
             JSONObject explrObject = mainJsonArray.getJSONObject(i);
-            Song song = new Song(explrObject.get(Song.COLUMN_SONG).toString(),
-                    explrObject.get(Song.COLUMN_URL).toString(),
-                    explrObject.get(Song.COLUMN_ARTISTS).toString(),
-                    explrObject.get(Song.COLUMN_COVER_IMAGE).toString());
+            SongDBModel song = new SongDBModel(
+                    explrObject.get(SongDBModel.COLUMN_SONG).toString(),
+                    explrObject.get(SongDBModel.COLUMN_URL).toString(),
+                    explrObject.get(SongDBModel.COLUMN_ARTISTS).toString(),
+                    explrObject.get(SongDBModel.COLUMN_COVER_IMAGE).toString());
             songList.add(song);
         }
 
-        /**/
+//        /**/
 
-        for(Song song: songList) {
+        for(SongDBModel song: songList) {
             for (SongDBModel songDB : songDBList) {
                 if(song.getUrl().equals(songDB.getUrl())){
-                    song.exists=true;
+                    song.exists = true;
                     break;
                 }
             }
         }
 
 
-        //
+//        //
         if (songList.size() != 0) {
-            new FetchImageFullUrl().execute(songList);
+            new FetchSongFullUrl().execute(songList);
         } else {
 
         }
@@ -453,126 +451,187 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Fetching full image url from short Url
      */
-    public class FetchImageFullUrl extends AsyncTask<List<Song>, Void, List<String>> {
-        @Override
-        protected List<String> doInBackground(List<Song>[] lists) {
-            List<String> allSongUrl = new ArrayList<String>();
-            if(lists != null || lists.length != 0){
-                for(Song sSong: lists[0]){
-                    if(!sSong.exists) {
-                        final URL url;
-                        try {
-                            url = new URL(Uri.parse(sSong.getCoverImage()).buildUpon().build().toString());
-                            final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                            urlConnection.setInstanceFollowRedirects(false);
-
-                            final String location = urlConnection.getHeaderField("location");
-                            allSongUrl.add(location);
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        allSongUrl.add(sSong.getCoverImage());
-                    }
-                }
-                return allSongUrl;
-            } else{
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<String> strings) {
-            super.onPostExecute(strings);
-
-            imageFullUrlList = strings;
-            new FetchSongFullUrl().execute(songList);
-            return;
-        }
-    }
+//    public class FetchImageFullUrl extends AsyncTask<List<SongDBModel>, Void, Void> {
+//        @Override
+//        protected Void doInBackground(List<SongDBModel>[] lists) {
+//            if(lists != null || lists.length != 0){
+//                for(SongDBModel sSong: lists[0]){
+//                    if(!sSong.exists) {
+////                    if(true) {
+//                        final URL url;
+//                        try {
+//                            url = new URL(Uri.parse(sSong.getCoverImage()).buildUpon().build().toString());
+//                            final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//                            urlConnection.setInstanceFollowRedirects(false);
+//
+//                            final String location = urlConnection.getHeaderField("location");
+//                            sSong.setCoverImageFullUlr(location);
+//
+//
+////                            allSongUrl.add(location);
+//                        } catch (MalformedURLException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    } else {
+////                        allSongUrl.add(sSong.getCoverImage());
+//                    }
+//                }
+//            } else{
+//                return null;
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void aVoid) {
+//            super.onPostExecute(aVoid);
+//            new FetchSongFullUrl().execute(songList);
+//        }
+//    }
 
     /**
      * Fetching full song url from short Url to download it
      */
-    public class FetchSongFullUrl extends AsyncTask<List<Song>, Void, List<String>> {
+    public class FetchSongFullUrl extends AsyncTask<List<SongDBModel>, Void, Void> {
         @Override
-        protected List<String> doInBackground(List<Song>[] lists) {
-            List<String> allSongUrl = new ArrayList<String>();
-            for(Song sSong: lists[0]){
+        protected Void doInBackground(List<SongDBModel>... lists) {
+            for(SongDBModel sSong: lists[0]){
                 if(!sSong.exists) {
-                    final URL url;
+//                if(true) {
+                    final URL songUrl, imageUrl;
                     try {
-                        url = new URL(Uri.parse(sSong.getUrl()).buildUpon().build().toString());
-                        final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                        urlConnection.setInstanceFollowRedirects(false);
 
-                        final String location = urlConnection.getHeaderField("location");
-                        allSongUrl.add(location);
+                        //  get Song Full url
+                        songUrl = new URL(Uri.parse(sSong.getUrl()).buildUpon().build().toString());
+                        final HttpURLConnection songUrlConnection = (HttpURLConnection) songUrl.openConnection();
+                        songUrlConnection.setInstanceFollowRedirects(false);
+                        final String songLocation = songUrlConnection.getHeaderField("location");
+                        sSong.setSongFullUrl(songLocation);
+
+                        //  get Image Full url
+                        imageUrl = new URL(Uri.parse(sSong.getCoverImage()).buildUpon().build().toString());
+                        final HttpURLConnection imageUrlConnection = (HttpURLConnection) imageUrl.openConnection();
+                        imageUrlConnection.setInstanceFollowRedirects(false);
+                        final String imageLocation = imageUrlConnection.getHeaderField("location");
+                        sSong.setCoverImageFullUlr(imageLocation);
+
+
+//                        allSongUrl.add(location);
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    allSongUrl.add(sSong.getUrl());
+//                    allSongUrl.add(sSong.getUrl());
                 }
             }
-            return allSongUrl;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(List<String> strings) {
-            super.onPostExecute(strings);
-            songFullUrlList = strings;
-            new FetchSongSize().execute(strings);
-            return;
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            new FetchSongSize().execute(songList);
         }
     }
 
     /**
      * Fetching size of song from Url to download it
      */
-    public class FetchSongSize extends AsyncTask<List<String>, Void, List<Integer>> {
+    public class FetchSongSize extends AsyncTask<List<SongDBModel>, Void, Void> {
         @Override
-        protected List<Integer> doInBackground(List<String>[] lists) {
-            List<Integer> allSongSize = new ArrayList<Integer>();
-            for(String songUrl: lists[0]){
-                URL url = null;
-                try {
-                    url = new URL(songUrl);
-                    URLConnection urlConnection = url.openConnection();
-                    urlConnection.connect();
-                    int file_size = urlConnection.getContentLength();
-                    printLog("Song size ",  " "+file_size);
-                    allSongSize.add(file_size);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        protected Void doInBackground(List<SongDBModel>[] lists) {
+            for(SongDBModel sSong : lists[0]){
+                if(!sSong.exists) {
+                    URL url = null;
+                    try {
+                        url = new URL(sSong.getSongFullUrl());
+                        URLConnection urlConnection = url.openConnection();
+                        urlConnection.connect();
+                        printLog("Song url",  " "+sSong.getSongFullUrl());
+                        int file_size = urlConnection.getContentLength();
+                        printLog("Song size ",  " "+file_size);
+                        sSong.setSize(file_size);
+//                    allSongSize.add(file_size);
+
+                        MediaPlayer mp;
+                        mp = new MediaPlayer();
+                        mp.setDataSource(getApplicationContext(), Uri.parse(sSong.getSongFullUrl()));
+                        mp.prepare();
+                        printLog("Song duration ",  " "+mp.getDuration());
+
+
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+//                    allSongUrl.add(sSong.getUrl());
                 }
             }
-            return allSongSize;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(List<Integer> strings) {
-            super.onPostExecute(strings);
-            addSongOtherDetails(imageFullUrlList, songFullUrlList, strings);
-            return;
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            addSongOtherDetails();
         }
     }
 
     /**
      * add the full song and image url into song objects
      */
-    public void addSongOtherDetails(List<String> imageUrlList, List<String> songUrlList, List<Integer> songSizes){
+//    public void addSongOtherDetails(List<String> imageUrlList, List<String> songUrlList, List<Integer> songSizes){
+//        ArrayList<SongDBModel> songListNotInDB= new ArrayList<SongDBModel>();
+//        for(int i = 0; i < imageUrlList.size(); i++){
+//            Song song = songList.get(i);
+//            if(song.exists) continue;
+//            boolean b = checkPreDownlodedSongs(song, songUrlList.get(i), songSizes.get(i));
+//            SongDBModel songDBModel;
+//            if(b){
+//                songDBModel = new SongDBModel(
+//                        song.getSong(),
+//                        song.getUrl(),
+//                        song.getArtists(),
+//                        song.getCoverImage(),
+//                        Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED,
+//                        imageUrlList.get(i),
+//                        Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
+//                        songUrlList.get(i),
+//                        songSizes.get(i)
+//                );
+//            } else{
+//                songDBModel = new SongDBModel(
+//                        song.getSong(),
+//                        song.getUrl(),
+//                        song.getArtists(),
+//                        song.getCoverImage(),
+//                        Constant.CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED,
+//                        imageUrlList.get(i),
+//                        Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
+//                        songUrlList.get(i),
+//                        songSizes.get(i)
+//                );
+//            }
+//            songDBList.add(songDBModel);
+//            songListNotInDB.add(songDBModel);
+//        }
+//        addSongs(songListNotInDB);
+//
+////        mAdapter.notifyDataSetChanged();
+//    }
+
+    public void addSongOtherDetails(){
         ArrayList<SongDBModel> songListNotInDB= new ArrayList<SongDBModel>();
-        for(int i = 0; i < imageUrlList.size(); i++){
-            Song song = songList.get(i);
+        for(SongDBModel song : songList){
             if(song.exists) continue;
-            boolean b = checkPreDownlodedSongs(song, songUrlList.get(i), songSizes.get(i));
+            boolean b = checkPreDownlodedSongs(song, song.getSongFullUrl(), song.getSize());
             SongDBModel songDBModel;
             if(b){
                 songDBModel = new SongDBModel(
@@ -581,10 +640,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         song.getArtists(),
                         song.getCoverImage(),
                         Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED,
-                        imageUrlList.get(i),
+                        song.getCoverImageFullUlr(),
                         Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
-                        songUrlList.get(i),
-                        songSizes.get(i)
+                        song.getSongFullUrl(),
+                        song.getSize()
                 );
             } else{
                 songDBModel = new SongDBModel(
@@ -593,10 +652,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         song.getArtists(),
                         song.getCoverImage(),
                         Constant.CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED,
-                        imageUrlList.get(i),
+                        song.getCoverImageFullUlr(),
                         Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
-                        songUrlList.get(i),
-                        songSizes.get(i)
+                        song.getSongFullUrl(),
+                        song.getSize()
                 );
             }
             songDBList.add(songDBModel);
@@ -630,7 +689,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 );
                 songDBModel.id = cursor.getLong(DBContract.Song.COLUMN_INT_ID);
                 songDBList.add(songDBModel);
-                songListMain=songDBList;
+                songListMain = songDBList;
             } while (cursor.moveToNext());
             cursor.close();
         }
@@ -641,7 +700,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * For Print logE
      */
-    public boolean checkPreDownlodedSongs(Song song, String songUrl, int songSize){
+    public boolean checkPreDownlodedSongs(SongDBModel song, String songUrl, int songSize){
         boolean Status = false;
         try {
             URL url = new URL(songUrl);
@@ -654,10 +713,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }else{
                 long length = file.length();
                 if(length == songSize){
-                    printLog("File ", "Exist full");
+                    printLog("File ", "Exist full length = "+length+" song size = "+songSize);
                     Status = true;
                 }else{
-                    printLog("File ", "Exist but incomplete");
+                    printLog("File ", "Exist but incomplete  = "+length+" song size = "+songSize);
                     Status = false;
                 }
             }

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -92,6 +93,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
                             Intent intent = new Intent(mContext, DownloadService.class);
                             intent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, song);
                             mContext.startService(intent);
+
                         }else{
                             Toast.makeText(mContext, "Network Error", Toast.LENGTH_SHORT).show();
                         }
@@ -161,7 +163,15 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
      * Play song on item elements click
      * */
     private void playSong(SongDBModel songDBModel) {
-        Player.getPlayerInstance(mContext).play(songList, songDBModel);
+        int permissionCheck = ContextCompat.checkSelfPermission(mContext,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED){
+            Player.getPlayerInstance(mContext).play(songList, songDBModel);
+        }else{
+            Intent playIntent = new Intent(Constant.ACTION_PERMISSION_REQUEST);
+            playIntent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, songDBModel);
+            mContext.sendBroadcast(playIntent);
+        }
     }
 
     @Override

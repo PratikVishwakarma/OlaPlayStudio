@@ -65,25 +65,33 @@ public class Player {
 //    }
 
     public final void nextSong(){
-        int i = playlist.indexOf(currentSong);
-        Log.e("Next song in ", i+"");
-        if( (i+1) == playlist.size()){
-            currentSong = playlist.get(0);
-        } else{
-            currentSong = playlist.get(i+1);
+        if(currentSong != null){
+            int i = playlist.indexOf(currentSong);
+            Log.e("Next song in ", i+"");
+            if( (i+1) == playlist.size()){
+                currentSong = playlist.get(0);
+            } else{
+                currentSong = playlist.get(i+1);
+            }
+            play();
+        }else{
+
         }
-        play();
     }
 
     public final void previousSong(){
-        int i = playlist.indexOf(currentSong);
-        Log.e("Pre song in ", i+"");
-        if( i == 0){
-            currentSong = playlist.get(0);
-        } else{
-            currentSong = playlist.get(i-1);
+        if(currentSong != null){
+            int i = playlist.indexOf(currentSong);
+            Log.e("Pre song in ", i+"");
+            if( i == 0){
+                currentSong = playlist.get(0);
+            } else{
+                currentSong = playlist.get(i-1);
+            }
+            play();
+        }else{
+
         }
-        play();
     }
 
 }

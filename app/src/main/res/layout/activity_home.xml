@@ -59,39 +59,43 @@
 
         <TextView
             android:id="@+id/home_textView_playing_song"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
+            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_toEndOf="@+id/home_imageView_playing_song_image"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:onClick="onClick"
             android:text="Playing Song Name"
-            android:maxLines="1"
-            android:ellipsize="end"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/text_heading_2"
             android:textStyle="bold"
             android:transitionName="songName"
+            app:layout_constraintEnd_toStartOf="@+id/home_imageView_playing"
             app:layout_constraintStart_toEndOf="@+id/home_imageView_playing_song_image"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/home_textView_playing_song_artist"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_below="@+id/home_textView_playing_song"
             android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:layout_toEndOf="@+id/home_imageView_playing_song_image"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:onClick="onClick"
             android:text="Artiest Name"
-            android:maxLines="1"
-            android:ellipsize="end"
             android:textColor="#e4d9a9a9"
             android:transitionName="artistName"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/home_imageView_playing"
             app:layout_constraintStart_toEndOf="@+id/home_imageView_playing_song_image"
             app:layout_constraintTop_toBottomOf="@+id/home_textView_playing_song" />
 
@@ -122,7 +126,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_next_song_plan" />
+            app:srcCompat="@drawable/ic_next_song_plan"
+            android:onClick="onClick"/>
     </android.support.constraint.ConstraintLayout>
 
     <android.support.v4.view.ViewPager

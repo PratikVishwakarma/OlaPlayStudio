@@ -111,13 +111,13 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        // Sending Broadcast for ready to playback
-
-        Intent playIntent = new Intent(Constant.ACTION_READY_FOR_PLAYBACK);
-        sendBroadcast(playIntent);
 
         getPlayback().playbackController.start();
         Toast.makeText(getApplicationContext()," music is active", Toast.LENGTH_SHORT).show();
+
+        // Sending Broadcast for ready to playback
+        Intent readyToPlayIntent = new Intent(Constant.ACTION_READY_FOR_PLAYBACK);
+        sendBroadcast(readyToPlayIntent);
     }
 
     @Override
@@ -128,31 +128,22 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
 
     public void playSong(){
         try {
-            printLog("Play song", "in Play Song 1");
             SongDBModel song = Player.getPlayerInstance(getApplicationContext()).currentSong;
-            printLog("Play song", "in Play Song 2 name "+ song.getSong());
             MediaPlayer player = getPlayback().mediaPlayer;
             if(player != null){ player.reset(); }
-            printLog("Play song", "in Play Song 3");
             if(song.getDownloadStatus().equals(Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED)){
-                printLog("Play song", "in Play Song 4");
                 File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "OlaPlayStudios");
                 File file = new File(dir.getPath() + File.separator + song.getSong()+".mp3");
                 if (file.exists()){
                     Uri uri = Uri.fromFile(file);
-                    printLog("Play song", "in Play Song 5");
-//                    Log.e("playback service ", " "+uri);
-                    printLog("URI", uri+" ");
-                    printLog("Normal URI", song.getSongFullUrl()+" ");
+//                      Log.e("playback service ", " "+uri);
                     try {
                         player.setDataSource(getApplicationContext(), uri);
-                        player.prepare();
-                    } catch (IOException io){
+
+                    } catch (Exception io){
                         io.printStackTrace();
                     }
-                    printLog("Play song", "in Play Song 8");
                 } else{
-                    printLog("Play song", "in Play Song 6");
                     printToast("Fill not exist");
                 }
 
@@ -189,7 +180,7 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
             getPlayback().playbackController.pause();
 //            printToast("In Audio focus Loss");
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            getPlayback().playbackController.start();
+//            getPlayback().playbackController.start();
 //            printToast("In Audio focus Gain");
         } else{
             getPlayback().playbackController.start();
