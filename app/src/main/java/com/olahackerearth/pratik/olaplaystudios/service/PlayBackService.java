@@ -3,17 +3,20 @@ package com.olahackerearth.pratik.olaplaystudios.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
-import com.olahackerearth.pratik.olaplaystudios.model.History;
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
 import com.olahackerearth.pratik.olaplaystudios.utility.Constant;
@@ -21,14 +24,22 @@ import com.olahackerearth.pratik.olaplaystudios.singleton.PlaybackSingleton;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemException;
 
 import static android.media.CamcorderProfile.get;
+import static android.media.MediaPlayer.MEDIA_ERROR_IO;
+import static android.media.MediaPlayer.MEDIA_ERROR_MALFORMED;
+import static android.media.MediaPlayer.MEDIA_ERROR_SERVER_DIED;
+import static android.media.MediaPlayer.MEDIA_ERROR_TIMED_OUT;
+import static android.media.MediaPlayer.MEDIA_ERROR_UNKNOWN;
+import static android.media.MediaPlayer.MEDIA_ERROR_UNSUPPORTED;
 
-public class PlayBackService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class PlayBackService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnErrorListener {
 
-    private String status;
-    private SongDBModel song;
+    private AudioAttributes mPlaybackAttributes;
+    private AudioFocusRequest mFocusRequest;
+    private Handler mMyHandler;
 
     public PlayBackService() {
     }
@@ -42,24 +53,57 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
         return PlaybackSingleton.getPlaybackInstance(getApplicationContext());
     }
 
+    AudioManager mAudioManager;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent !=null){
 
-            song = intent.getParcelableExtra(Constant.INTENT_PASSING_SINGLE_SONG);
+            if(intent.getAction() != null && intent.getAction().equals(Constant.ACTION_PLAYBACK_REQUESTED)){
+                mMyHandler = new Handler();
 
-            MediaPlayer player = getPlayback().mediaPlayer;
-
-
-            Intent playIntent = new Intent(Constant.ACTION_PLAYBACK_STARTED);
-            playIntent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, song);
-            sendBroadcast(playIntent);
+                getPlayback().mediaPlayer.setOnPreparedListener(this);
 
 
-            player.setOnPreparedListener(this);
-            player.setOnCompletionListener(this);
+                getPlayback().mediaPlayer.setOnCompletionListener(this);
+                getPlayback().mediaPlayer.setOnErrorListener(this);
 
-            playSong(song, player);
+                Intent playIntent = new Intent(Constant.ACTION_PLAYBACK_REQUESTED);
+                playIntent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, Player.getPlayerInstance(getApplicationContext()).currentSong);
+                sendBroadcast(playIntent);
+
+                int res;
+
+                // initialization of the audio attributes and focus request
+                mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mPlaybackAttributes = new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build();
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                            .setAudioAttributes(mPlaybackAttributes)
+                            .setAcceptsDelayedFocusGain(true)
+                            .setWillPauseWhenDucked(true)
+                            .setOnAudioFocusChangeListener(this, mMyHandler)
+                            .build();
+                    res = mAudioManager.requestAudioFocus(mFocusRequest);
+                } else{
+                    res = mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+                }
+
+                if(res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
+                    printToast("Request is Granted");
+                    playSong();
+                } else if(res == AudioManager.AUDIOFOCUS_REQUEST_FAILED){
+                    printToast("Request is Failed");
+                } else{
+                    printToast("Request is Delayed");
+                }
+            }
 
         }
         return super.onStartCommand(intent, flags, startId);
@@ -67,30 +111,59 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        // Sending Broadcast for ready to playback
+
+        Intent playIntent = new Intent(Constant.ACTION_READY_FOR_PLAYBACK);
+        sendBroadcast(playIntent);
+
         getPlayback().playbackController.start();
+        Toast.makeText(getApplicationContext()," music is active", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        SongDBModel songDBModel = Player.nextSong();
-        playSong(songDBModel, mediaPlayer);
+        Log.e("onCompletion", "called");
     }
 
-    public void playSong(SongDBModel song , MediaPlayer player){
+
+    public void playSong(){
         try {
+            printLog("Play song", "in Play Song 1");
+            SongDBModel song = Player.getPlayerInstance(getApplicationContext()).currentSong;
+            printLog("Play song", "in Play Song 2 name "+ song.getSong());
+            MediaPlayer player = getPlayback().mediaPlayer;
             if(player != null){ player.reset(); }
+            printLog("Play song", "in Play Song 3");
             if(song.getDownloadStatus().equals(Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED)){
+                printLog("Play song", "in Play Song 4");
                 File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "OlaPlayStudios");
                 File file = new File(dir.getPath() + File.separator + song.getSong()+".mp3");
-                Uri uri = Uri.fromFile(file);
-//                Log.e("playback service ", " "+uri);
-                player.setDataSource(getApplicationContext(), uri);
+                if (file.exists()){
+                    Uri uri = Uri.fromFile(file);
+                    printLog("Play song", "in Play Song 5");
+//                    Log.e("playback service ", " "+uri);
+                    printLog("URI", uri+" ");
+                    printLog("Normal URI", song.getSongFullUrl()+" ");
+                    try {
+                        player.setDataSource(getApplicationContext(), uri);
+                        player.prepare();
+                    } catch (IOException io){
+                        io.printStackTrace();
+                    }
+                    printLog("Play song", "in Play Song 8");
+                } else{
+                    printLog("Play song", "in Play Song 6");
+                    printToast("Fill not exist");
+                }
+
             } else{
                 if(!isNetworkAvailable()){
-                    Toast.makeText(getApplicationContext(), "Network Error", Toast.LENGTH_LONG).show();
+                    printToast("Network Error");
                 }else{
 
                 }
+                printLog("URI", Uri.parse(song.getSongFullUrl()).buildUpon().build()+" ");
+                printLog("Normal URI", song.getSongFullUrl()+" ");
                 player.setDataSource(getApplicationContext(), Uri.parse(song.getSongFullUrl()).buildUpon().build());
             }
             player.prepareAsync();
@@ -104,5 +177,59 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        printToast("In Audio focus change");
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT){
+//            printToast("In Audio focus Transient");
+            getPlayback().playbackController.pause();
+        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            getPlayback().playbackController.pause();
+//            printToast("In Audio focus Loss");
+        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            getPlayback().playbackController.start();
+//            printToast("In Audio focus Gain");
+        } else{
+            getPlayback().playbackController.start();
+//            printToast("In Audio focus Else");
+        }
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+
+        if(i == MEDIA_ERROR_UNKNOWN){
+            printLog("onError MediaPlay", "Media error unknown");
+        } else if(i == MEDIA_ERROR_SERVER_DIED){
+            printLog("onError MediaPlay", "Media error server died");
+        }
+
+        switch (i1){
+            case MEDIA_ERROR_IO:
+                printLog("onError MediaPlay", "Media error IO");
+                break;
+            case MEDIA_ERROR_MALFORMED:
+                printLog("onError MediaPlay", "MEDIA_ERROR_MALFORMED");
+                break;
+            case MEDIA_ERROR_UNSUPPORTED:
+                printLog("onError MediaPlay", "MEDIA_ERROR_UNSUPPORTED");
+                break;
+            case MEDIA_ERROR_TIMED_OUT:
+                printLog("onError MediaPlay", "MEDIA_ERROR_TIMED_OUT");
+                break;
+            default:
+                printLog("onError MediaPlay", "MEDIA_ERROR_SYSTEM");
+                break;
+        }
+        return true;
+    }
+
+    private void printToast(String message){
+        Toast.makeText(getApplicationContext(),message, Toast.LENGTH_SHORT).show();
+    }
+    private void printLog(String label, String message){
+        Log.e(label, message);
     }
 }

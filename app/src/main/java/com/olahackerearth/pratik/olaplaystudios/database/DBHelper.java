@@ -43,6 +43,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 DBContract.Song.COLUMN_COVER_IMAGE_SHORT_LENGTH+ " TEXT," +
                 DBContract.Song.COLUMN_SONG_FULL_URL+ " TEXT," +
                 DBContract.Song.COLUMN_FAVORITE_STATUS+ " TEXT" +
+                DBContract.Song.COLUMN_SIZE+ " NUMERIC" +
                 ");";
         final String SQL_CREATE_HISTORY_TABLE = "  CREATE TABLE " +
                 DBContract.History.TABLE_NAME + "( " +
@@ -135,7 +136,8 @@ public class DBHelper extends SQLiteOpenHelper {
                         cursor.getString(DBContract.Song.COLUMN_INT_DOWNLOAD_STATUS),
                         cursor.getString(DBContract.Song.COLUMN_INT_COVER_IMAGE_FULL_LENGTH),
                         cursor.getString(DBContract.Song.COLUMN_INT_FAVORITE_STATUS),
-                        cursor.getString(DBContract.Song.COLUMN_INT_SONG_FULL_URL)
+                        cursor.getString(DBContract.Song.COLUMN_INT_SONG_FULL_URL),
+                        cursor.getInt(DBContract.Song.COLUMN_INT_SIZE)
                 );
                 songDBModel.id = cursor.getLong(DBContract.Song.COLUMN_INT_ID);
             }

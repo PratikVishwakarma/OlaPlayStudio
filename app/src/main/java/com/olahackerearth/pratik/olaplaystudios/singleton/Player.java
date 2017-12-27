@@ -1,6 +1,14 @@
 package com.olahackerearth.pratik.olaplaystudios.singleton;
 
+import android.content.Context;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.util.Log;
+
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
+import com.olahackerearth.pratik.olaplaystudios.service.PlayBackService;
+import com.olahackerearth.pratik.olaplaystudios.utility.Constant;
+import com.olahackerearth.pratik.olaplaystudios.utility.PlaybackController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,43 +19,71 @@ import java.util.List;
 
 public class Player {
 
-    public final static ArrayList<SongDBModel> playlist = new ArrayList<>();
-    public static SongDBModel currentSong;
+    public final ArrayList<SongDBModel> playlist = new ArrayList<>();
+    public SongDBModel currentSong;
 
-    public final static ArrayList<SongDBModel> play(List<SongDBModel> list){
+    private static Player player;
+    public Context mContext;
+//    public static boolean loopSong = false;
+
+    public static Player getPlayerInstance(Context context){
+        if(player == null){
+            player = new Player(context.getApplicationContext());
+        }
+        return player;
+    }
+
+    private Player(Context mContext) {
+        this.mContext = mContext;
+    }
+
+    public final ArrayList<SongDBModel> play(List<SongDBModel> list){
         playlist.clear();
         playlist.addAll(list);
         return playlist;
     }
 
-    public final static void play(List<SongDBModel> list, SongDBModel song){
+    public final void play(List<SongDBModel> list, SongDBModel song){
         playlist.clear();
         playlist.addAll(list);
-        currentSong = song;
+        play(song);
     }
 
 
-    public final static SongDBModel play(SongDBModel song){
+    public final SongDBModel play(SongDBModel song){
         currentSong = song;
+        return play();
+    }
+
+    public final SongDBModel play(){
+        Intent playIntent = new Intent(mContext, PlayBackService.class).setAction(Constant.ACTION_PLAYBACK_REQUESTED);
+        mContext.startService(playIntent);
         return currentSong;
     }
+//    public final static void setLoop(boolean value){
+//        loopSong = value;
+//    }
 
-    public final static SongDBModel nextSong(){
+    public final void nextSong(){
         int i = playlist.indexOf(currentSong);
+        Log.e("Next song in ", i+"");
         if( (i+1) == playlist.size()){
-            return currentSong = playlist.get(0);
+            currentSong = playlist.get(0);
         } else{
-            return currentSong = playlist.get(i+1);
+            currentSong = playlist.get(i+1);
         }
+        play();
     }
 
-    public final static SongDBModel previousSong(){
+    public final void previousSong(){
         int i = playlist.indexOf(currentSong);
+        Log.e("Pre song in ", i+"");
         if( i == 0){
-            return currentSong = playlist.get(0);
+            currentSong = playlist.get(0);
         } else{
-            return currentSong = playlist.get(i-1);
+            currentSong = playlist.get(i-1);
         }
+        play();
     }
 
 }

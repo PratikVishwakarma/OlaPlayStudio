@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:state_pressed="true" >
+        <shape android:shape="rectangle"  >
+            <corners android:topLeftRadius="@dimen/round_radius" android:topRightRadius="@dimen/round_radius"
+                android:bottomLeftRadius="@dimen/round_radius" android:bottomRightRadius="@dimen/round_radius"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:topLeftRadius="@dimen/round_radius" android:topRightRadius="@dimen/round_radius"
+            android:bottomLeftRadius="@dimen/round_radius" android:bottomRightRadius="@dimen/round_radius"/>
+            <solid android:color="@android:color/white"/>
+            <stroke android:width="5dip" android:color="@color/colorAccent" />
+            <gradient android:angle="-90" android:startColor="@color/colorWhite" android:endColor="@color/colorWhite" />
+        </shape>
+    </item>
+
+</selector>

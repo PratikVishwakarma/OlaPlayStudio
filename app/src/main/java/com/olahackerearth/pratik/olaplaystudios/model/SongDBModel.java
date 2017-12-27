@@ -10,14 +10,14 @@ import android.os.Parcelable;
 public class SongDBModel implements Parcelable{
 
     private String song, url, artists, coverImage, downloadStatus, coverImageFullUlr, favorite, songFullUrl;
-
+    private int size;
     public long id = 0;
 
     public SongDBModel() {
     }
 
     public SongDBModel(String song, String url, String artists, String coverImage, String downloadStatus,
-                       String coverImageFullUlr, String favorite, String songFullUrl) {
+                       String coverImageFullUlr, String favorite, String songFullUrl, int size) {
         this.song = song;
         this.url = url;
         this.artists = artists;
@@ -26,6 +26,7 @@ public class SongDBModel implements Parcelable{
         this.coverImageFullUlr = coverImageFullUlr;
         this.favorite= favorite;
         this.songFullUrl= songFullUrl;
+        this.size = size;
     }
 
     protected SongDBModel(Parcel in) {
@@ -38,6 +39,7 @@ public class SongDBModel implements Parcelable{
         coverImageFullUlr = in.readString();
         favorite = in.readString();
         songFullUrl = in.readString();
+        size = in.readInt();
     }
 
     public static final Creator<SongDBModel> CREATOR = new Creator<SongDBModel>() {
@@ -104,6 +106,10 @@ public class SongDBModel implements Parcelable{
         return songFullUrl;
     }
 
+    public int getSize() {
+        return size;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -120,5 +126,6 @@ public class SongDBModel implements Parcelable{
         parcel.writeString(coverImageFullUlr);
         parcel.writeString(favorite);
         parcel.writeString(songFullUrl);
+        parcel.writeInt(size);
     }
 }

@@ -32,7 +32,7 @@ class SongDownloader(val context: Context) : AsyncTask<SongDBModel, String, Song
             val song = params[0]
             if (song != null) {
                 val url = URL(song.songFullUrl)
-                val dir = File(Environment.getExternalStorageDirectory().path + File.separator + "OlaPlayStudios");
+                val dir = File(Environment.getExternalStorageDirectory().path + File.separator + "OlaPlayStudios")
                 if (!dir.exists()) dir.mkdir()
                 val file = File(dir.path + File.separator + "${song.song}.mp3")
                 if (!file.exists()) file.createNewFile()
@@ -52,7 +52,7 @@ class SongDownloader(val context: Context) : AsyncTask<SongDBModel, String, Song
 
     override fun onProgressUpdate(vararg values: String?) {
         super.onProgressUpdate(*values)
-        if (values.isNotEmpty()) { }
+            if (values.isNotEmpty()) { }
     }
 
     override fun onPostExecute(result: SongDBModel?) {

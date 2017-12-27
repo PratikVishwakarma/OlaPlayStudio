@@ -18,6 +18,7 @@ public class DBContract {
         public static final String COLUMN_DOWNLOAD_STATUS = "download_status";
         public static final String COLUMN_SONG_FULL_URL = "song_full_url";
         public static final String COLUMN_FAVORITE_STATUS = "favorite_status";
+        public static final String COLUMN_SIZE = "song_size";
 
 
         public static final int COLUMN_INT_ID = 0;
@@ -29,6 +30,7 @@ public class DBContract {
         public static final int COLUMN_INT_COVER_IMAGE_SHORT_LENGTH = 6;
         public static final int COLUMN_INT_SONG_FULL_URL = 7;
         public static final int COLUMN_INT_FAVORITE_STATUS  = 8;
+        public static final int COLUMN_INT_SIZE = 8;
     }
     public static final class History implements BaseColumns {
         public static final String TABLE_NAME = "History";

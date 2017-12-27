@@ -7,4 +7,14 @@
     <color name="colorWhite">#fafafa</color>
     <color name="colorItem">#55000000</color>
     <color name="colorItemDark">#BB000000</color>
+
+    <color name="primary_text">#212121</color>
+
+    <color name="secondary_text">#757575</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="divider">#BDBDBD</color>
+
+    <color name="card_text_shadow">#004D40</color>
+    <color name="card_text_shadow_light">#fafafa</color>
 </resources>

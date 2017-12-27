@@ -49,7 +49,8 @@ public class Constant {
     public static final String CONSTANT_SONG_FAVORITE_STATUS_NOT = "notFavorite";
     public static final String CONSTANT_SONG_FAVORITE_STATUS_YES = "favorite";
 
-    public static final String ACTION_PLAYBACK_STARTED = "playbackStarted";
+    public static final String ACTION_PLAYBACK_REQUESTED = "playbackRequested";
+    public static final String ACTION_READY_FOR_PLAYBACK = "playbackReadyForPlayback";
     public static final String ACTION_PERMISSION_REQUEST = "permissionRequest";
 
 

@@ -5,58 +5,40 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Parcelable;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MediaController;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.olahackerearth.pratik.olaplaystudios.MainActivity;
 import com.olahackerearth.pratik.olaplaystudios.R;
-import com.olahackerearth.pratik.olaplaystudios.adapter.SongAdapter;
 import com.olahackerearth.pratik.olaplaystudios.database.DBContract;
 import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
 import com.olahackerearth.pratik.olaplaystudios.model.Song;
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
+import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
 import com.olahackerearth.pratik.olaplaystudios.ui.player.PlayerActivity;
 import com.olahackerearth.pratik.olaplaystudios.utility.Constant;
 import com.olahackerearth.pratik.olaplaystudios.utility.PlaybackController;
@@ -67,11 +49,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -91,7 +75,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private List<Song> songList = new ArrayList<>();
     public List<SongDBModel> songListMain = songDBList;
 
-    private List<String> imageFullUrlList= new ArrayList<>();
+    private List<String> imageFullUrlList = new ArrayList<>();
+    private List<String> songFullUrlList = new ArrayList<>();
 
     DBHelper dbHelper;
 
@@ -108,7 +93,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         fetchSongsFromDB();
         callLoadDataTask();
         myReceiver = new MyReceiver();
-        registerReceiver(myReceiver, new IntentFilter(Constant.ACTION_PLAYBACK_STARTED));
+        registerReceiver(myReceiver, new IntentFilter(Constant.ACTION_PLAYBACK_REQUESTED));
 
         permissionRequestReceiver = new PermissionRequestReceiver();
         registerReceiver(permissionRequestReceiver, new IntentFilter(Constant.ACTION_PERMISSION_REQUEST));
@@ -143,6 +128,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                     playingSongButton.setImageResource(R.drawable.ic_pause_song);
                     controller.start();
                 }
+                break;
+            case R.id.home_imageView_playing_next:
+                Player.getPlayerInstance(getApplicationContext()).nextSong();
                 break;
         }
     }
@@ -206,14 +194,14 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-//                case 0:
-//                    return "Home";
-//                case 1:
-//                    return "Download";
-//                case 2:
-//                    return "Favorite";
-//                case 3:
-//                    return "History";
+                case 0:
+                    return "All Songs";
+                case 1:
+                    return "Download";
+                case 2:
+                    return "Favorite";
+                case 3:
+                    return "History";
             }
             return null;
         }
@@ -295,11 +283,11 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     public void parseSongDetailFromJson(JSONArray mainJsonArray) throws JSONException {
         for (int i = 0; i < mainJsonArray.length(); i++) {
             JSONObject explrObject = mainJsonArray.getJSONObject(i);
-            Song post = new Song(explrObject.get(Song.COLUMN_SONG).toString(),
+            Song song = new Song(explrObject.get(Song.COLUMN_SONG).toString(),
                     explrObject.get(Song.COLUMN_URL).toString(),
                     explrObject.get(Song.COLUMN_ARTISTS).toString(),
                     explrObject.get(Song.COLUMN_COVER_IMAGE).toString());
-            songList.add(post);
+            songList.add(song);
         }
 
         /**/
@@ -461,7 +449,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             if(mSectionsPagerAdapter.liked!=null)
                 mSectionsPagerAdapter.liked.refresh();
         }
-        setupTabIcons();
     }
     /**
      * Fetching full image url from short Url
@@ -538,7 +525,41 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(List<String> strings) {
             super.onPostExecute(strings);
-            addImageFullUrl(imageFullUrlList, strings);
+            songFullUrlList = strings;
+            new FetchSongSize().execute(strings);
+            return;
+        }
+    }
+
+    /**
+     * Fetching size of song from Url to download it
+     */
+    public class FetchSongSize extends AsyncTask<List<String>, Void, List<Integer>> {
+        @Override
+        protected List<Integer> doInBackground(List<String>[] lists) {
+            List<Integer> allSongSize = new ArrayList<Integer>();
+            for(String songUrl: lists[0]){
+                URL url = null;
+                try {
+                    url = new URL(songUrl);
+                    URLConnection urlConnection = url.openConnection();
+                    urlConnection.connect();
+                    int file_size = urlConnection.getContentLength();
+                    printLog("Song size ",  " "+file_size);
+                    allSongSize.add(file_size);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return allSongSize;
+        }
+
+        @Override
+        protected void onPostExecute(List<Integer> strings) {
+            super.onPostExecute(strings);
+            addSongOtherDetails(imageFullUrlList, songFullUrlList, strings);
             return;
         }
     }
@@ -546,21 +567,38 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * add the full song and image url into song objects
      */
-    public void addImageFullUrl(List<String> imageUrlList, List<String> songUrlList){
+    public void addSongOtherDetails(List<String> imageUrlList, List<String> songUrlList, List<Integer> songSizes){
         ArrayList<SongDBModel> songListNotInDB= new ArrayList<SongDBModel>();
         for(int i = 0; i < imageUrlList.size(); i++){
             Song song = songList.get(i);
             if(song.exists) continue;
-            SongDBModel songDBModel = new SongDBModel(
-                    song.getSong(),
-                    song.getUrl(),
-                    song.getArtists(),
-                    song.getCoverImage(),
-                    Constant.CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED,
-                    imageUrlList.get(i),
-                    Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
-                    songUrlList.get(i)
-            );
+            boolean b = checkPreDownlodedSongs(song, songUrlList.get(i), songSizes.get(i));
+            SongDBModel songDBModel;
+            if(b){
+                songDBModel = new SongDBModel(
+                        song.getSong(),
+                        song.getUrl(),
+                        song.getArtists(),
+                        song.getCoverImage(),
+                        Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED,
+                        imageUrlList.get(i),
+                        Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
+                        songUrlList.get(i),
+                        songSizes.get(i)
+                );
+            } else{
+                songDBModel = new SongDBModel(
+                        song.getSong(),
+                        song.getUrl(),
+                        song.getArtists(),
+                        song.getCoverImage(),
+                        Constant.CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED,
+                        imageUrlList.get(i),
+                        Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
+                        songUrlList.get(i),
+                        songSizes.get(i)
+                );
+            }
             songDBList.add(songDBModel);
             songListNotInDB.add(songDBModel);
         }
@@ -587,7 +625,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         cursor.getString(DBContract.Song.COLUMN_INT_DOWNLOAD_STATUS),
                         cursor.getString(DBContract.Song.COLUMN_INT_COVER_IMAGE_FULL_LENGTH),
                         cursor.getString(DBContract.Song.COLUMN_INT_FAVORITE_STATUS),
-                        cursor.getString(DBContract.Song.COLUMN_INT_SONG_FULL_URL)
+                        cursor.getString(DBContract.Song.COLUMN_INT_SONG_FULL_URL),
+                        cursor.getInt(DBContract.Song.COLUMN_INT_SIZE)
                 );
                 songDBModel.id = cursor.getLong(DBContract.Song.COLUMN_INT_ID);
                 songDBList.add(songDBModel);
@@ -595,7 +634,37 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             } while (cursor.moveToNext());
             cursor.close();
         }
+        // Check the song is all ready exist in Storage
         dataFetchedAndInserted();
+    }
+
+    /**
+     * For Print logE
+     */
+    public boolean checkPreDownlodedSongs(Song song, String songUrl, int songSize){
+        boolean Status = false;
+        try {
+            URL url = new URL(songUrl);
+            File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + "OlaPlayStudios");
+            if (!dir.exists()) dir.mkdir();
+            File file = new File(dir.getPath() + File.separator + song.getSong()+".mp3");
+            if (!file.exists()){
+                printLog("File ", "Not Exist");
+                Status = false;
+            }else{
+                long length = file.length();
+                if(length == songSize){
+                    printLog("File ", "Exist full");
+                    Status = true;
+                }else{
+                    printLog("File ", "Exist but incomplete");
+                    Status = false;
+                }
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return Status;
     }
 
     /**

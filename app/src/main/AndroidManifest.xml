@@ -15,7 +15,8 @@
         android:roundIcon="@mipmap/app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,8 +34,23 @@
             android:name=".ui.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".ui.player.PlayerActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".ui.player.PlayerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.portfolio.AppPortfolioActivity"
+            android:label="@string/title_activity_app_portfolio"
+            android:parentActivityName=".ui.HomeActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.olahackerearth.pratik.olaplaystudios.ui.HomeActivity" />
+        </activity>
+
+        <service
+            android:name=".service.DownloadService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

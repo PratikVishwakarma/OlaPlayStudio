@@ -26,13 +26,9 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
     public void start() {
         try {
             getMediaPlayer().start();
-
-//            seekTo(getDuration()-5000);
-
-            //
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer on start", ""+e);
             e.printStackTrace();
         }
     }
@@ -44,7 +40,7 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
             //
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer on Pause", ""+e);
             e.printStackTrace();
         }
     }
@@ -55,7 +51,7 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
             return getMediaPlayer().getDuration();
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer onDuration", ""+e);
             e.printStackTrace();
             return 0;
         }
@@ -67,7 +63,7 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
             return getMediaPlayer().getCurrentPosition();
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer onPos", ""+e);
             e.printStackTrace();
             return 0;
         }
@@ -79,7 +75,7 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
             getMediaPlayer().seekTo(i);
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer onSikto", ""+e);
             e.printStackTrace();
 
         }
@@ -91,7 +87,7 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
             return getMediaPlayer().isPlaying();
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer on plying", ""+e);
             e.printStackTrace();
             return false;
         }
@@ -124,7 +120,7 @@ public class PlaybackController implements MediaController.MediaPlayerControl {
             return getMediaPlayer().getAudioSessionId();
         }
         catch (Exception e) {
-            Log.e("MediaPlayer", ""+e);
+            Log.e("MediaPlayer onSes", ""+e);
             e.printStackTrace();
             return 0;
         }

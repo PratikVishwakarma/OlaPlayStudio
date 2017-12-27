@@ -6,25 +6,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.olahackerearth.pratik.olaplaystudios.ui.HomeActivity">
+    tools:context="com.olahackerearth.pratik.olaplaystudios.ui.HomeActivity"
+    tools:layout_editor_absoluteY="25dp">
 
-
-    <android.support.design.widget.TabLayout
-        android:id="@+id/home_tabs"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="8dp">
-    </android.support.design.widget.TabLayout>
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/appbar_padding_top"
+        android:theme="@style/AppBarOverlay"
+        android:overScrollMode="always"
+        android:background="@color/colorItemDark">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/home_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="63dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layout_constraintBottom_toTopOf="@+id/home_constraintLayout_small_player"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <android.support.design.widget.TabLayout
+            android:id="@+id/home_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabTextColor="@color/colorWhite"
+            app:tabMode="scrollable"
+            app:tabIndicatorColor="@color/colorPrimaryDark"
+            android:foregroundGravity="center">
+
+        </android.support.design.widget.TabLayout>
+    </android.support.design.widget.AppBarLayout>
+
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/home_constraintLayout_small_player"
@@ -33,19 +39,17 @@
         android:background="#BB000000"
         android:onClick="onClick"
         android:transitionName="fullLayout"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/home_imageView_playing_song_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:onClick="onClick"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
             android:adjustViewBounds="true"
+            android:onClick="onClick"
             android:scaleType="centerCrop"
             android:transitionName="songImage"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -63,6 +67,8 @@
             android:layout_toEndOf="@+id/home_imageView_playing_song_image"
             android:onClick="onClick"
             android:text="Playing Song Name"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/text_heading_2"
             android:textStyle="bold"
@@ -81,6 +87,8 @@
             android:layout_toEndOf="@+id/home_imageView_playing_song_image"
             android:onClick="onClick"
             android:text="Artiest Name"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:textColor="#e4d9a9a9"
             android:transitionName="artistName"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -99,10 +107,35 @@
             android:onClick="onClick"
             android:transitionName="songPlayingButton"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/home_imageView_playing_next"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.545"
+            app:srcCompat="@drawable/ic_play_song" />
+
+        <ImageView
+            android:id="@+id/home_imageView_playing_next"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_play_song" />
+            app:srcCompat="@drawable/ic_next_song_plan" />
     </android.support.constraint.ConstraintLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/home_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layout_constraintBottom_toTopOf="@+id/home_constraintLayout_small_player"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appbar"
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </android.support.constraint.ConstraintLayout>

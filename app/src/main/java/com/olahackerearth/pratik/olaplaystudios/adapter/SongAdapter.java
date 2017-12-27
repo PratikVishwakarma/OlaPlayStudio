@@ -20,6 +20,7 @@ import com.olahackerearth.pratik.olaplaystudios.R;
 import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
 import com.olahackerearth.pratik.olaplaystudios.model.History;
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
+import com.olahackerearth.pratik.olaplaystudios.service.DownloadService;
 import com.olahackerearth.pratik.olaplaystudios.service.PlayBackService;
 import com.olahackerearth.pratik.olaplaystudios.service.SongDownloader;
 import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
@@ -62,24 +63,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
                 .error(R.drawable.placeholder_song)
                 .into(holder.coverImage);
 
-        holder.songName.setOnClickListener(new View.OnClickListener() {
+        holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 playSong(song);
             }
         });
-        holder.artist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                playSong(song);
-            }
-        });
-        holder.coverImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                playSong(song);
-            }
-        });
+
         if(song.getDownloadStatus().equals(Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED)){
             holder.downloadSongDBModel.setVisibility(View.GONE);
         } else{
@@ -95,9 +85,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
                     if (permissionCheck == PackageManager.PERMISSION_GRANTED){
                         holder.downloadSongDBModel.setVisibility(View.GONE);
                         if(isNetworkAvailable()){
-                            Toast.makeText(mContext, "Downloading...", Toast.LENGTH_SHORT).show();
-                            final SongDownloader songDownloader = new SongDownloader(mContext);
-                            songDownloader.execute(song);
+//                            Toast.makeText(mContext, "Downloading...", Toast.LENGTH_SHORT).show();
+//                            final SongDownloader songDownloader = new SongDownloader(mContext);
+//                            songDownloader.execute(song);
+
+                            Intent intent = new Intent(mContext, DownloadService.class);
+                            intent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, song);
+                            mContext.startService(intent);
                         }else{
                             Toast.makeText(mContext, "Network Error", Toast.LENGTH_SHORT).show();
                         }
@@ -167,10 +161,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
      * Play song on item elements click
      * */
     private void playSong(SongDBModel songDBModel) {
-        Player.play(songList, songDBModel);
-        Intent playIntent = new Intent(mContext, PlayBackService.class);
-        playIntent.putExtra(Constant.INTENT_PASSING_SINGLE_SONG, songDBModel);
-        mContext.startService(playIntent);
+        Player.getPlayerInstance(mContext).play(songList, songDBModel);
     }
 
     @Override
@@ -181,6 +172,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         private TextView songName, artist;
         private ImageView coverImage, downloadSongDBModel, favoriteImage;
+        private View view;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -189,6 +181,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
             coverImage = (ImageView) itemView.findViewById(R.id.item_song_image);
             downloadSongDBModel = (ImageView) itemView.findViewById(R.id.item_history_type);
             favoriteImage = (ImageView) itemView.findViewById(R.id.item_song_image_favorite);
+            view = itemView;
         }
     }
 }
