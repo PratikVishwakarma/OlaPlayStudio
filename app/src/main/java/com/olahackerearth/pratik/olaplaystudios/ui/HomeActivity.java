@@ -500,7 +500,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             for(SongDBModel sSong: lists[0]){
                 if(!sSong.exists) {
 //                if(true) {
-                    final URL songUrl, imageUrl;
+                    final URL songUrl, imageUrl, sizeUrl;
                     try {
 
                         //  get Song Full url
@@ -517,6 +517,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         final String imageLocation = imageUrlConnection.getHeaderField("location");
                         sSong.setCoverImageFullUlr(imageLocation);
 
+                        //  get Song size
+                        sizeUrl = new URL(sSong.getSongFullUrl());
+                        URLConnection sizeUrlConnection = sizeUrl.openConnection();
+                        sizeUrlConnection.connect();
+                        int file_size = sizeUrlConnection.getContentLength();
+                        printLog("Song size ",  " "+file_size);
+                        sSong.setSize(file_size);
 
 //                        allSongUrl.add(location);
                     } catch (MalformedURLException e) {
@@ -534,7 +541,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            new FetchSongSize().execute(songList);
+//            new FetchSongSize().execute(songList);
+            addSongOtherDetails();
         }
     }
 
@@ -562,6 +570,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         mp.setDataSource(getApplicationContext(), Uri.parse(sSong.getSongFullUrl()));
                         mp.prepare();
                         printLog("Song duration ",  " "+mp.getDuration());
+                        mp.release();
 
 
                     } catch (MalformedURLException e) {
@@ -587,46 +596,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * add the full song and image url into song objects
      */
-//    public void addSongOtherDetails(List<String> imageUrlList, List<String> songUrlList, List<Integer> songSizes){
-//        ArrayList<SongDBModel> songListNotInDB= new ArrayList<SongDBModel>();
-//        for(int i = 0; i < imageUrlList.size(); i++){
-//            Song song = songList.get(i);
-//            if(song.exists) continue;
-//            boolean b = checkPreDownlodedSongs(song, songUrlList.get(i), songSizes.get(i));
-//            SongDBModel songDBModel;
-//            if(b){
-//                songDBModel = new SongDBModel(
-//                        song.getSong(),
-//                        song.getUrl(),
-//                        song.getArtists(),
-//                        song.getCoverImage(),
-//                        Constant.CONSTANT_SONG_DOWNLOAD_STATUS_DOWNLOADED,
-//                        imageUrlList.get(i),
-//                        Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
-//                        songUrlList.get(i),
-//                        songSizes.get(i)
-//                );
-//            } else{
-//                songDBModel = new SongDBModel(
-//                        song.getSong(),
-//                        song.getUrl(),
-//                        song.getArtists(),
-//                        song.getCoverImage(),
-//                        Constant.CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED,
-//                        imageUrlList.get(i),
-//                        Constant.CONSTANT_SONG_FAVORITE_STATUS_NOT,
-//                        songUrlList.get(i),
-//                        songSizes.get(i)
-//                );
-//            }
-//            songDBList.add(songDBModel);
-//            songListNotInDB.add(songDBModel);
-//        }
-//        addSongs(songListNotInDB);
-//
-////        mAdapter.notifyDataSetChanged();
-//    }
-
     public void addSongOtherDetails(){
         ArrayList<SongDBModel> songListNotInDB= new ArrayList<SongDBModel>();
         for(SongDBModel song : songList){
@@ -669,7 +638,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
      * Fetching songs form database and load it into List
      */
     public void fetchSongsFromDB(){
-        String selectQuery = "SELECT  * FROM " + DBContract.Song.TABLE_NAME;
+        String selectQuery = "SELECT  * FROM " + DBContract.Song.TABLE_NAME + " ORDER BY "+ DBContract.Song.COLUMN_SONG;
         SQLiteDatabase dbw = dbHelper.getWritableDatabase();
         Cursor cursor = dbw.rawQuery(selectQuery, null);
         // looping through all rows and adding to list

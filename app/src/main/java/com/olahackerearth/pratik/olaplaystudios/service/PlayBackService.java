@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.olahackerearth.pratik.olaplaystudios.database.DBHelper;
 import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
 import com.olahackerearth.pratik.olaplaystudios.utility.Constant;
@@ -145,6 +146,8 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
                     }
                 } else{
                     printToast("Fill not exist");
+                    song.setDownloadStatus(Constant.CONSTANT_SONG_DOWNLOAD_STATUS_NOT_DOWNLOADED);
+                    DBHelper.getDBHelper(getApplicationContext()).updateSong(song);
                 }
 
             } else{

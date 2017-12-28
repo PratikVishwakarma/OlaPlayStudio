@@ -117,14 +117,10 @@ public class PlayerActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
         showSeekBarNow();
@@ -142,15 +138,13 @@ public class PlayerActivity extends AppCompatActivity {
                 int i = playbackController.getCurrentPosition() *100;
                 int i1 = i  / playbackController.getDuration();
                 seekBar.setProgress(i1);
-            } catch (Exception ex) {
-
-            }
+            } catch (Exception ex) {}
             showSeekBar();
         }
     };
 
     public void showSeekBar(){
-        handler.postDelayed(runnable, 1000);
+        handler.postDelayed(runnable, 400);
     }
 
     public void showSeekBarNow(){

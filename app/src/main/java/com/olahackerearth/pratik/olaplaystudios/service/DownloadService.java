@@ -32,7 +32,6 @@ public class DownloadService extends Service {
     public static final int ID = 5;
     private DownloadSongFromUrl downloadSongFromUrl;
 
-    NotificationManager managerCompat = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     public DownloadService() {
     }
 
@@ -56,6 +55,7 @@ public class DownloadService extends Service {
 
     public class DownloadSongFromUrl extends AsyncTask<SongDBModel, String, SongDBModel>{
 
+        NotificationManager managerCompat = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder updateNotification = new NotificationCompat.Builder(getApplicationContext(), Constant.DATABASE_CONSTANT_HISTORY_DOWNLOAD)
                 .setSmallIcon(R.drawable.ic_download);
         @Override
@@ -89,16 +89,16 @@ public class DownloadService extends Service {
                                 FileOutputStream outputStream = new FileOutputStream(file);
                                 byte data[] = new byte[1024];
                                 long total = 0;
-                                int lenghtOfFile = connection.getContentLength();
+                                int lengthOfFile = connection.getContentLength();
                                 InputStream input = connection.getInputStream();
 
 //                                Copy the data into sdCard
                                 while ((count = input.read(data)) != -1) {
                                     total += count;
-                                    Log.e("song downloader", "in while "+ total);
+//                                    Log.e("song downloader", "in while "+ total);
                                     // publishing the progress....
                                     // After this onProgressUpdate will be called
-                                    publishProgress(""+(int)((total*100)/lenghtOfFile));
+                                    publishProgress(""+(int)((total*100)/lengthOfFile));
 
                                     // writing data to file
                                     outputStream.write(data, 0, count);
@@ -148,8 +148,6 @@ public class DownloadService extends Service {
 
                 managerCompat.notify(ID,preExecuteNotification.build());
             }
-
-
         }
 
         @Override
@@ -157,33 +155,13 @@ public class DownloadService extends Service {
             super.onProgressUpdate(values);
             if (values != null) {
                 if (managerCompat != null) {
-//                    updateNotification
-//                            .setContentTitle("Song Download")
-//                            .setContentText("Download in Progress")
-//                            .setProgress(100, Integer.parseInt(values[0])/10000, false );
-//                    managerCompat.notify(ID, updateNotification.build());
+                    updateNotification
+                            .setContentTitle("Song Download")
+                            .setContentText("Download in Progress")
+                            .setProgress(100, Integer.parseInt(values[0]), false );
+                    managerCompat.notify(ID, updateNotification.build());
                 }
             }
-        }
-
-        private Long copyWithProgress(InputStream in, OutputStream out, byte[] buffer){
-            Long read = 0L;
-            int n;
-            try {
-                n = in.read(buffer);
-                while (n > 0) {
-                    out.write(buffer, 0, n);
-                    read += Long.parseLong(n+"");
-                    publishProgress(read.toString());
-                    n = in.read(buffer);
-                    out.flush();
-                    in.close();
-                    out.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return read;
         }
 
         public void printLog(String label, String message){

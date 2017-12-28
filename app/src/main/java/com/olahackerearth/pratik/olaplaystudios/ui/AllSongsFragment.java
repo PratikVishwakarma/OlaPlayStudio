@@ -224,9 +224,9 @@ public class AllSongsFragment extends Fragment {
 
     public List<SongDBModel> filterList(String type){
 //        printLog("main list ",songListMain.size()+"");
-        for(SongDBModel songDBModel :songListMain){
-//            printLog("data on list ", songDBModel.getSong());
-        }
+//        for(SongDBModel songDBModel :songListMain){
+////            printLog("data on list ", songDBModel.getSong());
+//        }
         List<SongDBModel> songListTemp =new ArrayList<>();
         switch (type){
             case Constant.CONSTANT_SONG_ALL_SONG:
