@@ -22,6 +22,7 @@ import com.olahackerearth.pratik.olaplaystudios.model.SongDBModel;
 import com.olahackerearth.pratik.olaplaystudios.singleton.Player;
 import com.olahackerearth.pratik.olaplaystudios.utility.Constant;
 import com.olahackerearth.pratik.olaplaystudios.singleton.PlaybackSingleton;
+import com.olahackerearth.pratik.olaplaystudios.utility.PlaybackController;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
                 }
 
                 if(res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
-                    printToast("Request is Granted");
+//                    printToast("Request is Granted");
                     playSong();
                 } else if(res == AudioManager.AUDIOFOCUS_REQUEST_FAILED){
                     printToast("Request is Failed");
@@ -114,7 +115,7 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
     public void onPrepared(MediaPlayer mediaPlayer) {
 
         getPlayback().playbackController.start();
-        Toast.makeText(getApplicationContext()," music is active", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext()," music is active", Toast.LENGTH_SHORT).show();
 
         // Sending Broadcast for ready to playback
         Intent readyToPlayIntent = new Intent(Constant.ACTION_READY_FOR_PLAYBACK);
@@ -123,7 +124,9 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
+
         Log.e("onCompletion", "called");
+        Player.getPlayerInstance(getApplicationContext()).nextSong();
     }
 
 
@@ -175,18 +178,21 @@ public class PlayBackService extends Service implements MediaPlayer.OnPreparedLi
 
     @Override
     public void onAudioFocusChange(int focusChange) {
-        printToast("In Audio focus change");
+//        printToast("In Audio focus change");
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT){
-//            printToast("In Audio focus Transient");
+            printToast("In Audio focus Transient");
             getPlayback().playbackController.pause();
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             getPlayback().playbackController.pause();
-//            printToast("In Audio focus Loss");
+            printToast("In Audio focus Loss");
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-//            getPlayback().playbackController.start();
+            getPlayback().playbackController.start();
 //            printToast("In Audio focus Gain");
         } else{
-            getPlayback().playbackController.start();
+            if(new PlaybackController(getApplicationContext()).isPlaying()){
+
+            }
+//            getPlayback().playbackController.start();
 //            printToast("In Audio focus Else");
         }
     }

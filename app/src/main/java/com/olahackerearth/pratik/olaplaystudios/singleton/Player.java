@@ -24,7 +24,9 @@ public class Player {
 
     private static Player player;
     public Context mContext;
-//    public static boolean loopSong = false;
+    public boolean loopSong = false;
+    public boolean loopList = true;
+
 
     public static Player getPlayerInstance(Context context){
         if(player == null){
@@ -60,20 +62,26 @@ public class Player {
         mContext.startService(playIntent);
         return currentSong;
     }
-//    public final static void setLoop(boolean value){
-//        loopSong = value;
-//    }
 
     public final void nextSong(){
         if(currentSong != null){
             int i = playlist.indexOf(currentSong);
             Log.e("Next song in ", i+"");
-            if( (i+1) == playlist.size()){
-                currentSong = playlist.get(0);
-            } else{
-                currentSong = playlist.get(i+1);
+            if(loopSong){
+                play();
+            }else{
+                if( (i+1) == playlist.size()){
+                    if(loopList){
+                        currentSong = playlist.get(0);
+                    }else{
+                        currentSong = playlist.get(0);
+                        new PlaybackController(mContext).pause();
+                    }
+                } else{
+                    currentSong = playlist.get(i+1);
+                }
+                play();
             }
-            play();
         }else{
 
         }
@@ -91,6 +99,22 @@ public class Player {
             play();
         }else{
 
+        }
+    }
+
+    public void toggleSingleSong(){
+        if(loopSong){
+            loopSong = false;
+        }else{
+            loopSong = true;
+        }
+    }
+
+    public void toggleSongList(){
+        if(loopList){
+            loopList = false;
+        }else{
+            loopList = true;
         }
     }
 

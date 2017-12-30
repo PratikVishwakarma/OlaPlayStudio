@@ -19,6 +19,10 @@
     </style>
 
 
+    <style name="imageView">
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:scaleType">centerCrop</item>
+    </style>
     <!--List SwipeRefreshLayout-->
     <style name="SchoolFragmentListSwipeRefreshLayout">
         <item name="android:layout_width">match_parent</item>
